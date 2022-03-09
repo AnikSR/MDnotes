@@ -1,0 +1,40 @@
+After the combined .gro file and corresponding topololgy file for the protein-ligand complex has beed achieved, the regular preparation steps follow:
+
+Defining the box
+----------------
+Command:
+		$ gmx editconf -f cmpl_3htbJZ4.gro -o box.gro -bt cubic -d 1.0
+
+Here,
+	'-f' option specified the input file name: cmpl_3htbJZ4.gro
+	'-o' option specified the output file name: box.gro
+	'-bt' specifies box type. Here 'cubic' box type is chosen.
+	'-d' specifies 1.0nm of periodic boundary.
+
+Note that, this time the '-c' option, that specifies the central position for the protin is not specified, since both protien and ligand are being studied.
+
+
+Solvation
+---------
+Command:
+		$ gmx solvate -cp box.gro -cs spc216.gro -p topol.top -o sol.gro
+
+This step is indentical with the step without the ligand, as reflected to the command.
+
+
+Neutralization
+--------------
+Command:
+		$ gmx grompp -f ions.mdp -c sol.gro -p topol.top -o ions.tpr
+		$ $ gmx genion -s ions.tpr -o ions.gro -p topol.top -pname NA -nname CL -neutral
+
+Both steps of the neutralization are completely identical to these step without ligand. So, the detail fo these steps are not discussed further.
+
+
+Energy minimization and analysis
+--------------------------------
+$ gmx grompp -f em.mdp -c ions.gro -p topol.top -o em.tpr
+$ gmx mdrun -deffnm em -v
+$ gmx energy -f em_3htb.edr -o em_3htb.xvg		# Analysis.
+
+Like previous two steps, energy minimization too, is identical with non ligand simulation.

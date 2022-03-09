@@ -1,0 +1,46 @@
+Cleaning the protein
+--------------------
+1. Cleaning step this time involves, cleaning the protein of any heteromatom like before, but additionally the ligand also have to be cleaned from everything 
+else. First the ligand is extracted:
+
+   			$ grep JZ4 3htb.pdb > JZ4.pdb
+
+JZ4 here mark the ligand atoms. The protein then is extracted like before:
+
+   			$ grep -v HETATM 3htb.pdb > cln_3htb.pdb
+
+This can be done in any sequence, since grep doesn't alter the original file.
+
+
+Applying the forcefield
+-----------------------
+1. Forcefield is applied to the cleaned protien molecule like before:
+
+			$ gmx pdb2gmx -f cln_3htb.pdb -o protein.gro
+
+As can be seen, the pdb2gmx is taking in the cln_3htb.pdb file which is specified as input by the '-f' option and spitting out the protein.gro file following
+the '-o' option. The forcefield applied this time is "CHARMM36 all-atom force field (July 2020)", an external forcefield. The water model is "SPC/E" - extended 
+simple point charge.
+
+
+2. Now, polar hydrogen is to be added to the ligand moleucle using Avogadro 2.0. This is done by opening the JZ4.pdb file in Avogadro 2.0 and:
+
+			Build -> Hydrogen -> Add Hydrogens
+
+After adding hydrogen, the file is to be saved in .mol2 format:
+
+			Molecule -> [enter the name JZ4.mol2] -> [select all files as save format] -> save
+
+Note that, Avogadro 2.0 installed by standard installation command lacks MOL2 writer. So, other Avogadro 2.0 modules have to be installed for this step. In the
+current system, its done using the Synaptic package manager GUI. However, a detail study of the Avogadro 2.0 will reveal the detail and a way to install the
+modules using command line.
+
+3. The JZ4.mol2 file generated in this way have to be edited. The second line containing asterics have to be replaced with the file name JZ4.
+
+4. This JZ4.mol2 file now needs to be modified using the perl script "sort_mol2_bonds.pl". The command:
+
+			$ perl sort_mol2_bonds.pl JZ4.mol2 JZ4_new.mol2
+
+5. The output file "JZ4_new.mol2" is now ready for processing by CGenFF server. To submit any molecule, the CGenFF website requires registration as a user and
+log in as that user. After that the JZ4_new.mol2 file have to be uploaded, which will be processed and the output file will appear as the webpage updates. The
+output file, which is a text file, have to be saved in the proper directory.

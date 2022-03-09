@@ -1,0 +1,24 @@
+Applying the Forcefield: continued for the ligand molecule:
+-----------------------------------------------------------
+1. Now the ligand molecule is ready for the application of the forcefield. Since Gromacs can't apply forcefield on anything other than protein molecules, this
+is done using a python script from the website: MacKerell Lab (http://mackerell.umaryland.edu/charmm_ff.shtml).
+
+				$ python3 cgenff_charmm2gmx_py3_nx2.py JZ4 JZ4_new.mol2 JZ4.str charmm36-jul2021.ff
+
+In this command -
+
+	python3								Calls the python3 interpreter.
+	cgenff_charmm2gmx_py3_nx2.py		The python script that'll do the job.
+	JZ4									The ligand. The python script recognizes it as RESNAME, which means residue name. This is the 1st command line argument.
+	JZ4_new.mol2						2nd command line argument, the modified .mol2 file.
+	charmm36-jul2021.ff					The chamm36 forcefield, July 2021 edition.
+
+
+Note:
+	1. This python script is tested using python 3.5 and NetworkX-2.3, but the current system uses Python 3.9 and NetworkX-2.6 which can cause artifacts.
+	NetworkX-2.3 module can be installed for python 3.9, but it causes a lot of error, to the point of being close to incompatible.
+
+	2. The "genff_charmm2gmx_py3_nx2.py" script is actually incompatible with NetworkX-2.6, but this can be easily mitigated by changing the 'node' module's
+	name to 'nodes'. Using 'search and replace' for this will break 'add_node' and 'set_node_attributes' module as this will change the word 'node' in these
+	names to 'nodes' as well. This can be corrected easily.
+

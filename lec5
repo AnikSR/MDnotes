@@ -1,0 +1,65 @@
+The equilibration process consists of two steps - equilibrate with respect to temperature and with respect to pressure. Each equilibrtion is done in two steps:
+	
+	- First, the .gro file and the specification file (.mdp file) is used to assemble a binary .tpr file using grompp module.
+	- Then, the mdrun module does the necessary equlibration.
+
+Temperature equlibration:
+
+1. Preparing the binary file:
+
+				$ gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+
+   grompp 				The module which will assemble the binary .trp file.
+   -f nvt.mdp			-f specifies a file. Here the .mdp file - the file containing the specs, is the argument of the '-f' option.
+   -c em.gro			-c option specifies the file that contains the coordination. Here, em.gro is the energy minimized file.
+   -r em.gro			-r option specifies the file containing the residue information.
+   -p topol.top			-p specifies the name for toplogy file. topol.top is the file that contains the updated toplogy of our protein.
+   -o nvt.tpr			-o specifies the output file.
+
+
+2. Equilibrating the temperature:
+
+				$ gmx mdrun -deffnm nvt -v
+
+   mdrun				This is the module that does the molecular dynamics simulation. This time its simulating the protein and its environment coming to the
+   						same temperature as our experimental condition.
+   -deffnm nvt			'-deffnm' option specifies the name for every file for this operation. The input file nvt.tpr, and the various output files.
+   -v					Time specification option. This is empty here because, time isn't specified in this situation.
+   
+
+Once the protein and its environment is in the same temperature as the experiment requires, its time to bring it to the same pressure:
+
+1. Preparing the binary file:
+
+				$ gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
+
+This command is like the corresponding temperatur equlibration step before:
+
+	- npt.mdp is the specification file that follows '-f' option.
+	- nvt.gro is the temperature equilibrated .gro file that's acting as the source of coordination (for -c option) and residue information (-r option).
+	- nvt.cpt is a new file that came as the argument of '-t' option. The .cpt stands for "checkpoint". This files save the entire state of previous simulation.
+	- -p specifies where to write topology update and -o as usual specifies the output.
+
+
+2. Equilibrating the pressure:
+			
+				$ gmx mdrun -deffnm npt -v
+
+Except for the filename, this command is the same as the one before.
+
+
+After equilibration, its time for the actual simulation. Parameters like how many nano-seconds are being simulated and other things have to be specified in the
+respective .mdp file. Like the temperature and pressure equlibration step, this too is done in same two steps, using same two Gromacs module:
+
+1. Preparing the binary file:
+
+				$ gmx grompp -f md.mdp -c npt.gro -r npt.gro -t npt.cpt -p topol.top -o md1.tpr
+
+And like before, the command is the same except for the respective input, output and the spec. file name.
+
+2. Run the simulation:
+
+				$ gmx mdrun -deffnm md1 -v
+
+In the current machine (Ryzen 5 CPU, GT-710 and GT-720 GPU, 8GB RAM), it took 52min 36sec for 1 ns of simulation of a protein of 129 residues without ligand.
+The protein in question is Hen Egg Lysozyme (RSCB PDB accession ID: 1aki).

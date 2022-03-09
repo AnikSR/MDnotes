@@ -1,0 +1,42 @@
+RMSF of the backbone atoms:
+---------------------------
+Command:
+
+			$ gmx rmsf -s md1.tpr -f neoMd.xtc -o rmsf.xvg
+
+Naturally, this command is almost the same as the command for RMSD. The only difference is that the module that does this is 'rmsf' and the output file is named
+accordingly. The RMSF was calulated for the backbone (4) against the backbone (4).
+
+
+
+Radius of Gyration of the protein:
+----------------------------------
+Command:
+
+			$ gmx gyrate -s md1.tpr -f neoMd.xtc -o gyrate.xvg
+
+This command too, has the similar format as that of rmsd and rmsf calculation, the module however is gyrate. During the run the option 1) Protien was selected.
+
+
+
+Hydrogen bonding calculation:
+-----------------------------
+Command:
+
+			$ gmx hbond -s md1.tpr -f neoMd.xtc -num hbNum.xvg -dist hbDist.xvg
+
+Here,
+	hbond				The module that calculates parameter related to h-bond.
+	-s md1.tpr			The binary file.
+	-f neoMd.xtc		The portable trajectory file.
+	-num hbNum.xvg		It returns the number of H-bond between protein and non-protein molecules.
+	-dist hbDist.xvg	It returns the distribution of H-bonding distande between protein and non-protein molecules.
+
+
+The output of this operation are hbdist.xvg and hbnum.xvg which respectively are files recording the number and the distribution of h-bonds. The H-bonds were
+calculated for the protein (1) against the non-protein (11). However, if H-bond analysis is done for protein against protein, then we will get a picture for
+hydrogen bonding inside protein.
+
+Van der Waals Parameters
+------------------------
+There are quite a few Van der Waals parameters and their calculation is quantum mechnical in nature. As such, they won't be discussed here.

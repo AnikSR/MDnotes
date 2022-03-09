@@ -1,0 +1,19 @@
+Molecular dynamics simulation of proteins with ligand
+=====================================================
+Like MDS without ligand, this too is comprised of two main steps: preparation and MDS run. Like before, preparation comprised of several steps:
+
+1) Cleaning the Protein:
+------------------------
+This step is just like the one before. But this time there will be two files. One is the old [protein].pdb file. The other one is the [ligand].pdb. This ligand
+file is generated the same way by cleaning the file, but this time, everything except the ligand in question is cleaned.
+
+2) Applying the forcefield:
+---------------------------
+Force field have to be applied seperately, to the [protein].pdb file and to [ligand].pdb file. The ligand file have to be modified in certain ways to make it 
+adequate for the application of the forcefield. After applying the forcefield, these two files have to be merged.
+
+3) After the applicaiton of the forcefield, the usual steps like defining the box, adding water, nutralization etc comes along.
+
+4) Then comes temperature and pressure equilibration.
+
+5) Then the final MD simulation.

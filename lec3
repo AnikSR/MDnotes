@@ -1,0 +1,48 @@
+Steps and commands
+------------------
+1. Cleaning can be done using grep. For example if HOH is the only hetero atom, this can be done using:
+
+					$ grep -v HOH 1aki.pdb > cleaned1aki.pdb
+
+The option '-v' tells grep to find every line that doesn't contain the keyword "HOH" in the file 1aki.pdb. These findings are then redirected to a new file:
+cleaned1aki.pdb.
+
+
+2. Applying forcefiled can be done using the command:
+
+	            $ gmx pdb2gmx -f cleaned1aki.pdb -o protein.gro
+
+   The 'gmx' command calls Gromacs. 'pdb2gmx' is a subroutine in the Gromacs package that applies the forcefield. The '-f' option names the input file, which's
+   "cleaned1aki.pdb" and the '-o' options names the file where to send the output.
+
+2a. There are several force field models standardized for different situation. While executing this command Gromacs will provide 15 inbuilt forcefield and ask
+    the user to choose one. After choosing an appropriate force field, one will also need to specify proper water model. There are 7 water models inbuilt inside
+	Gromacs. However it is completely possible to add external force field and water model, but that will be discussed later.
+
+3. The next step is defining the box - aka the region where we'll concentrate our effort. This can be done using the command:
+
+				$ gmx editconf -f protein.gro -o box.gro -c -d 1.0 -bt cubic
+
+Here, 'editconf' is another gmx module than reconfigures the position of the protein. The '-f' and '-o' options again specifies respectively the input and the
+output file name as their argument. Rest of the options and argument are:
+
+   				'-c'	Specifies that the protein must be at the center of the box.
+				'-bt'	Stands for "Box Type". As per the argument, a cubic box is chosen here. But any uniform platonic solid is possible.
+				'-d'	Option specifies periodic boundary. A 1.0nm of periodic boundary is specified here.
+
+The exact box size here is determined by Gromacs.
+
+
+4. Next, the solvation is done using the command:
+
+				$ gmx solvate -cp box.gro -cs spc216.gro -o solve.gro -p topol.top
+
+   'solvate' is the Gromacs module that does this step. Here:
+   				
+				'-cp' specifies the input file 'box.gro'
+				'-cs' specifies the water model for the solvents
+				'-o' specifies the output file as usual
+				'-p' specifies the file that recoreds the topology. Any previous 'topol.top' file will be renamed by adding '#' at both end and adding a version
+				     number. For example the previous topology file from force field generation proceude is renamed to "#topol.top.1#".
+   
+As like the previous step, the exact amount of water is determined by Gromacs. However, this time these molecules are specified with 'SOL' keyword.

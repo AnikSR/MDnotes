@@ -1,0 +1,32 @@
+Preparing the input file.
+
+1.Clean the protein:
+	(i) Experimetally obtained protein structure contains many 'other' atoms like surrounding water, ligand etc. These are called hetero atoms and are coded
+	    HETATM in a pdb file. However, based on the situation, some HETATM might be necessary for further analysis and thus aren't removed.
+
+2. Apply force field:
+	(i) Apply a necessary forcefield associated with 
+	(ii) Box.
+	(iii) Solvation.
+	(iv) Neutralization.
+
+3. Energy minimization:
+	(i) Geometrical correction to remove steric hinderance. Also called atomic refinement.
+	(ii) Many iterations - say 500 times.
+	(iii) Ananlysis of potential energy. Maximum dU = - 1X10^5 Kj/Mol.
+	** Ramachandran cutt off: <2% residues out of spec.
+
+
+4. Equilibration:
+	(i) Aims to achieve equilibria with respect to pressure(nvt), temperature(nvp) of the system.
+	(ii) Time dependent step - have to specify for how long - 1ns or 10ns etc.
+
+
+5. Final step.
+	The longer the simulation time, the better.
+
+
+6. Analysis:
+	(i) mainly based on RMSD (Root Mean Sqr. Daviation) and ROG (Radious of Gyration).
+
+The output is a .pdb file, the post simulation file for the

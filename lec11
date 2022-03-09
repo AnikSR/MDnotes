@@ -1,0 +1,69 @@
+Merging the ligand file with protein:
+-------------------------------------
+1. After the application of force field, a .gro file is generated for the force field applied ligand. The 'editconf' module is used for this role:
+
+			$ gmx editconf -f jz4_ini.pdb -o JZ4.gro
+
+2. After this, the atomic coordinates of the ligand is manually added after the coordinates of the protein atoms.
+
+													   .
+				. . .		. . .		. . .		   .
+			163ASN    OT1 2613   0.624  -0.616  -0.140 |-----> Coordinates of the protein atoms.		
+			163ASN    OT2 2614   0.683  -0.703  -0.011_|
+			1JZ4     C1    1   2.429  -2.412  -0.007 ]
+								.					 .
+								.					 .-------> Coordinates of the ligand atoms.
+								.					 .
+			1JZ4    H18   28   2.431  -2.365  -0.406_|
+		   5.99500   5.19182   9.66100   0.00000   0.00000  -2.99750   0.00000   0.00000   0.00000	---> Box coordinates.
+
+3. At the start of a .gro file, the number of atoms is specified. Since the ligand atoms are added, number of atoms must be modified accordingly. In the current
+case, the ligand has 28 atoms, and the protein has 1614 atoms. So the combined number of atom is 1642, which is specifed accordingly.
+
+
+			LYSOZYME
+ No. of <--- 2642
+ atom		    1MET      N    1   0.556  -1.596  -0.893
+ modified	    1MET     H1    2   0.522  -1.511  -0.855
+			    1MET     H2    3   0.520  -1.608  -0.986
+								.
+								.
+								.
+
+4. The then current topology file has to be modified as well. The ligand topology file which is jz4.itp in the current scope has to be added through include
+directive. Its better to add the ligand position restrain file after the protein position restrain file as shown bellow:
+
+				. . .	. . .	. . .
+			; Include Position restraint file
+			#ifdef POSRES
+			#include "posre.itp"
+			#endif
+
+			; Include ligand topology
+			#include "jz4.itp"
+				. . .	. . .	. . .
+
+
+5. Similarly the ligand parameter file - jzr.prm in this case, have to be added using the include directive. This should be added after the directive adding the
+force field parameters:
+
+				. . .	. . .	. . .
+			; Include Position restraint file
+			#ifdef POSRES
+			#include "posre.itp"
+			#endif
+
+			; Include ligand topology
+			#include "jz4.itp"
+				. . .	. . .	. . .
+
+6. A typical Gromacs topoly file ends with specifiying which molecules are present and how many. Since the combined file includes one additional JZ4 molecule,
+this too has to be manually added:
+
+		...		...		...
+			[ molecules ]
+			; Compound        #mols
+			Protein_chain_A     1
+			JZ4                 1
+
+The stps after this is largely similar to that without ligand.

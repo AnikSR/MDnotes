@@ -1,0 +1,81 @@
+Position restraining the ligand
+-------------------------------
+1. To equilibrate the protein-ligand complex, the ligand needs to be position restrained. For this, first the ligand atoms has to be indexed:
+
+			$ gmx make_ndx -f JZ4.gro -o index_JZ4.ndx
+
+This command is pretty clear
+	- The make_ndx module of Gromacs takes in the JZ4.gro file that have been generated from the force field applied jz4_ini.pdb file.
+	- As an output, it returns the index file: index_JZ4.ndx
+
+However, there are a few more story inside the index creation, these are discussed bellow.
+
+
+2. Indexing requires specifying group of atoms. After the make_ndx is called, it will show various options. The group selected is: "0 & ! a H*". Here:
+
+			0			Stands for the system.
+			! a H*		Excluding all hydrogen atoms.
+
+Thus "0 & ! a H*" means the whole system but the hydrogen atoms should be indexed. This will generate a new option: "System_&_!H*" placed at number 3. The
+previos options being:
+
+					0	System		; 28 atoms
+					1	Other		; 28 atoms
+					2	JZ4			; 28 atoms
+
+After all these are done, progress can be "save and quit" with 'q'.
+
+
+3. After indexing, position restrained file for ligand is generated using the 'genrestr' module:
+
+			$ gmx genrestr -f JZ4.gro -n index_JZ4.ndx -o posre_jz4.itp -fc 1000 1000 1000
+
+The points to be noted about this command and the process are:
+	- Position restraining parameters are always saved in files with 'itp' extension. So the output file is named "posre_jz4.itp". The '-fc' option specify
+	upper limit of the restrainment - 1000 X 1000 X 1000, with 'fc' standing for "functional coordinates".
+	- Rest of this command is as usual - the input file is as usual specified with '-f' option and additionally, the index file - "index_JZ4.ndx" obtained in
+	the previous step is specified with the '-n' option.
+	- During the execution of the command, the genrestr module will ask to specify a group. The newly generated group 3: System_&_!H have to be selected.
+
+
+4. This positition restrined file posre_jz4.itp have to be added to the current topology file through an 'include' directive:
+
+		 ...	...		...
+		#include "posre.itp"
+		#endif
+
+		; Ligand position restraints
+		#ifdef POSRES
+		#include "posre_jz4.itp"
+		#endif
+		 ...	...		...
+
+As can be seen, the ligand topology file is added after the position restraining file for protein: "posre.tip". But, it can also be added after the directive
+adding the ligand topology file jz4.itp.
+
+
+Indexing the protein
+--------------------
+After the position restraining file is generated for the ligand, its time for indexing the protein:
+
+		$ gmx make_ndx -f em.gro -o index.ndx
+
+During the indexing, make_ndx module will ask for a group to select. The group in this occation will be "1 | 13", where no. 1 is protein and no. 13 is JZ4. This
+will be labeled a new group "Protein_JZ4" and this group will be added to no. 23.
+
+
+Equilibration and the MDS:
+--------------------------
+After this, the temperature and pressure equilibration and the final molecular dynamic simulation run is basically the same as the steps without ligand. So, the
+command for these steps are listed bellow:
+
+$ gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -n index.ndx -o nvt.tpr				# Preparing the binary file for temp. equilibration.
+$ gmx mdrun -deffnm nvt -v																		# MDS for temperature equilibration.
+$ gmx grompp -f npt.mdp -c nvt.gro -t nvt.cpt -r nvt.gro -p topol.top -n index.ndx -o npt.tpr	# Preparing the binary file for pressure equilibration.
+$ gmx mdrun -deffnm npt -v																		# MDS for pressure equilibration.
+$ gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -n indx.ndx -o md1.tpr				# Preparing the binary file for final MDS.
+$ gmx mdrun -deffnm md1 -v																		# The actual MD run.
+
+There is one vital difference though, the index file is added with '-n' option with each command. Without specifying the index file like this, the equilibration
+and the MDS will be done without including the ligand file. Also, the *.mdp files, that contains the specification for the MD run have to be checked and also
+modified if needed.

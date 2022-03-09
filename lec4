@@ -1,0 +1,64 @@
+After solvation, comes nutralization and subsequent steps leading to finding the most stable conformation for the protein, the conformation free of steric
+hinderance and other unstablilizing effects.
+
+1) Neutralization takes two steps. The command for the first step is:
+
+			$ gmx grompp -f ions.mdp -c solve.gro -p topol.top -o ions.tpr
+
+   Here, another Gromacs module 'grompp' is called. This acts like an assembler that consumes the solvation file 'solve.gro', processes it according to the
+   specification given in the .mdp file, updates the topology file and as an output, returs a binary file with a .tpr ending. The "MDP" file extension stand for
+   Molecular Dynamic Parameters.
+
+
+2) The 'genion' module then takes this binary file and processes it for a nutralized environment with the protein in question:
+
+			$ gmx genion -s ions.tpr -o ions.gro -p topol.top -pname NA -nname CL -neutral
+
+   In this command:
+
+   			-s ions.tpr		: '-s' specifies source file which is ions.tpr
+			-o ions.gro		: '-o' as usual specifies the output file.
+			-p topol.top	: '-p' specifies the toplogy file, as before.
+			-pname NA		: 'pname' stands for Positive ion Name. So this option specified the +ve ions that'll be used to nutralize -ve charges on the
+							   protein. It should be clear that Na+ ions are being used here.
+			-nname CL		: Similarly '-nname' option specified the -ve ion which is Cl- here.
+			-neutral		: This tell genion to calculate how many of the respective -ve and +ve ions might be required and add them.
+
+
+3) Now comes the energy minimization step. This too, is done in same two steps. First grompp is used to convert .gro file with neutral protein and prepares the
+   binary file with .tpr extension according to the .mdp file that provides all the specification:
+
+   			$ gmx grompp -f minim.mdp -c ions.gro -p topol.top -o em.tpr
+
+4) Then 'mdrun' module takes this binary file, which is provided without any extension and does the energy minimization:
+
+			$ gmx mdrun -deffnm em -v
+
+   The '-deffnm' option just specifies the default filename for all the output files. After this step em.trr, em.edr and em.log are generated.
+
+
+5) Now since the energy minimization step is done, 
+
+			$ gmx energy -f em.edr -o potential.xvg
+
+   command produces a .xvg file which are then used to generate graphical presentation. The .xvg can be visualized using the grace graphical tool by
+
+   			$ xmgrace potential.xvg
+
+   Since the axis lebels aren't specified in the command line, grace will label the x-axis as 'time(ps)'. Since energy minimization is done in steps, this label
+   should be changed acconrdingly.
+
+6) This is then exported to .png format using the command:
+
+			$ xmgrace -nxy potential.xvg -hdevice PNG -hardcopy -printfile potential.png
+
+   Here:
+
+   		-nxy				Specifies that there would be x and y axis.
+		potential.xvg		The .xvg file.
+		-hdevice			Specifies the output format.
+		-hardcopy			Specifies printer friendly format.
+		-printfile			Export command.
+		poteintil.png		Output file name.
+
+The protein system is now ready for equilibriation.

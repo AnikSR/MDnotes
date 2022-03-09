@@ -1,0 +1,78 @@
+After molecular dynamics simulation, its time for analysis. This step basically examines various parameters like:
+1) Temperature flactuation the protein went through during the temperature equilibration simulation.
+2) Pressure flactuation the protein went through during the pressure equilibration simulation.
+3) RMSD (Root Mean Square Daviation) of the backbone atoms during the MDS (molecular dynamic simulation) run.
+4) RMSF (Root Mean Square Fluctuation) of the backbone atoms during the MDS run.
+5) ROG (Radious of Gyration) of the protein molecule.
+6) Hydrogen bonding calculation.
+7) Van der Waals interaction calculatiion.
+
+Only 1-3 has been discussed in the current lecutre, other will be discussed in an extension file to this lecture.
+
+
+1) Plotting the temperature variation:
+--------------------------------------
+Command:
+			
+			$ gmx energy -f nvt.edr -o temp.xvg
+
+Here,
+	energy			This module reads through the .edr file (portable energy file), and organizes temperature vs time data to a .xvg file.
+	-f nvt.edr		'-f' option indicates which file will be the input of the energy module
+	-o temp.xvg		'-o' option specifies the output filename as usual.
+
+During this run, the option 16) Temperaure is selected.
+
+
+2) Plotting the pressure variation:
+-----------------------------------
+Command:
+		
+			$ gmx energy -f npt.edr -o pressure.xvg
+
+This is basically the same command as the previous one, except for preesure instead of temperature. The option 18) Pressure is selected in this run.
+
+
+2.5) Converting MDS trajectory 
+------------------------------
+This is an intermediate step that enables calculating all the derived quantities like RMSD, RMSF, ROG etc possible. The command:
+
+			$ gmx trjconv -s md1.tpr -f md1.xtc -o neoMd.xtc -pbc mol -center
+
+Here,
+	trjconv				The module that convert MD trajectory information to .xtc (portable trajectory) file.
+	-s md1.tpr			-s specifies the .tpr file.
+	-f md1.xtc			-f specifies the .xtc file.
+	-pbc mol center		'pbc' stands for Periodic Boundary Condition.
+
+During this run, 1) Protein was selected with respect to 0) System.
+
+
+3) RMSD of the backbone atom:
+-----------------------------
+Command:
+
+			$ gmx rms -s md1.tpr -f neoMd.xtc -o rmsd.xvg
+
+Here,
+	rms				The module that calculates RMSD, RMSF and other related quantites.
+	-s md1.tpr		The binary file containing the final MDS parameters.
+	-f neoMd.xtc	Portable MDS trajectory file, specified as another input of rms module using '-f' command.
+	-o rmsd.xvg		Specifying the output file.
+
+The RMSD was calculated for the backbone (option 4) against the backbone.
+
+
+==============================
+In addition, the MDS trajectory file can be used to generate a .pdb file that visualizes the protein after simulation and all the treatment leading to it. The
+command related to it is:
+
+			$ gmx editconf -f md1.gro -o md1_1aki.pdb
+
+As can be seen, here,
+
+					editconf			The module that is gonna consume .gro file and spit out the .pdb file.
+					-f md1.gro			The input file have to be a .gro file, here the .gro file of MDS - md1.gro.
+					-o md1_1aki.pdb		The output file.
+
+Visually inspecting the protien, though not a quantitative analysis, provides a intutive analysis.
